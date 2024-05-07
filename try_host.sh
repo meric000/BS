@@ -11,16 +11,13 @@ $0 [OPTIONS] [<hostname>|<IP-Adresse>]
 Ask the user for her or his name and display a greeting 
 OPTIONS: 
    -h: Display this help
+   -s <sec>: intervall for ping
 "
 }
 
 # This function asks the user for his name
-ask_for_name() {
-    echo "Please enter your name:" 
-    read user_name
-}
 doPing(){
-ping -c 1 $1
+ping -c 1 $1 > /dev/null;
 if [ $? -eq 0 ]; then
     echo "Ping war erfolgreich"
 else 
@@ -30,12 +27,18 @@ fi
 }
 # ---------------------- main --------------------------------
 # check parameters 
-if [ $# -gt 1 ]; then
+if [ $# -gt 5 ]; then
     usage
     exit 1
 fi
+
 intervall=10
 
+
+if [[ "$1" == "-s" ]]; then
+   intervall=$2
+    shift 2
+fi
 
 
 while getopts ":hs:" option; do
@@ -44,16 +47,17 @@ while getopts ":hs:" option; do
             usage
             exit 0
             ;;
-        "-s")
-            intervall=$OPTARG
-            ;;
-        \?)
-            echo "Invalid option: -$OPTARG" >&2
-            usage
-            exit 1
-            ;;
+        *)
+        echo "Falscher Input"
+	    exit
+        ;;
+       
     esac
 done
+
+shift 2
+
+
 
 while true; do
     doPing "$1"
